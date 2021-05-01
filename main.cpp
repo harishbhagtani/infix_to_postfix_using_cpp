@@ -223,15 +223,6 @@ public:
                     cout<<"Popping top element and inserting to post fix... Then we'll evaluate current symbol again."<<endl;
                     postFixExpression.push_back(stack.pop());
                     goto topOfTheLoop;
-                } else{
-                    //In all the other cases, pop out the element from stack and insert it to post fix
-                    if(stack.isEmpty()){
-                        cout<<"Stack is empty"<<endl;
-                    }else{
-                        cout<<"Top of stack: "<<stack.getTop()<<endl;
-                    }
-                    cout<<"Popping and inserting to postfix..."<<endl;
-                    postFixExpression.push_back(stack.pop());
                 }
             }
             endOfLoop:
