@@ -4,10 +4,11 @@
  */
 #include <iostream>
 #include <ctype.h>
+
 using namespace std;
 
 //Ignore this stack class
-class Stack{
+class Stack {
 public:
 
     //Max = 100
@@ -15,9 +16,9 @@ public:
     char arr[MAX];
     int top = -1;
 
-    int push(char element){
-        if(isFull()){
-            cout<<"Overflow"<<endl;
+    int push(char element) {
+        if (isFull()) {
+            cout << "Overflow" << endl;
             return -1;
         }
         top++;
@@ -25,9 +26,9 @@ public:
         return top;
     }
 
-    int pop(){
-        if(isEmpty()){
-            cout<<"Underflow"<<endl;
+    int pop() {
+        if (isEmpty()) {
+            cout << "Underflow" << endl;
             return -1;
         }
         int deletionElement = arr[top];
@@ -35,32 +36,32 @@ public:
         return deletionElement;
     }
 
-    void printStack(){
-        cout<<"There are "<<getCount()<<" elements in stack."<<endl;
-        for(int i = 0;i <= top;i++){
-            cout<<arr[i]<<"\t";
+    void printStack() {
+        cout << "There are " << getCount() << " elements in stack." << endl;
+        for (int i = 0; i <= top; i++) {
+            cout << arr[i] << "\t";
         }
-        cout<<endl;
+        cout << endl;
     }
 
-    bool isEmpty(){
+    bool isEmpty() {
         return top < 0;
     }
 
-    bool isFull(){
+    bool isFull() {
         return top >= 100;
     }
 
-    char getTop(){
+    char getTop() {
         return arr[top];
     }
 
-    int getCount(){
+    int getCount() {
         return top + 1;
     }
 };
 
-class InfixToPostfixUsingStack{
+class InfixToPostfixUsingStack {
 
     const int RIGHT_ASSOCIATIVE = 1;
     const int LEFT_ASSOCIATIVE = 2;
@@ -68,89 +69,96 @@ class InfixToPostfixUsingStack{
     string infixExpression;
     string postFixExpression;
 
-    int getPrecedence(char checkOperator){
-        if(checkOperator == '^' || checkOperator == '$'){
+    int getPrecedence(char checkOperator) {
+        if (checkOperator == '^' || checkOperator == '$') {
             return 3;
-        } else if (checkOperator == '*' || checkOperator == '/'){
+        } else if (checkOperator == '*' || checkOperator == '/') {
             return 2;
-        } else if (checkOperator == '+' || checkOperator == '-'){
+        } else if (checkOperator == '+' || checkOperator == '-') {
             return 1;
-        } else{
+        } else {
             return -1;
         }
     }
 
-    int getAssociativity(char checkOperator){
-        if(checkOperator == '^' || checkOperator == '$'){
+    int getAssociativity(char checkOperator) {
+        if (checkOperator == '^' || checkOperator == '$') {
             return RIGHT_ASSOCIATIVE;
-        } else if(checkOperator == '+' || checkOperator == '-' || checkOperator == '/' || checkOperator == '*'){
+        } else if (checkOperator == '+' || checkOperator == '-' || checkOperator == '/' || checkOperator == '*') {
             return LEFT_ASSOCIATIVE;
         }
     }
 
 public:
 
-    void setInfixExpression(string infixExpression){
+    void setInfixExpression(string infixExpression) {
         this->infixExpression = infixExpression;
     }
 
     //Function to perform algorithm
-    void convertInfixToPostFix(){
+    void convertInfixToPostFix() {
 
         Stack stack;
 
-        for(int i = 0;i < infixExpression.length();i++){
+        for (int i = 0; i < infixExpression.length(); i++) {
 
             char currentSymbol = infixExpression[i];
 
             topOfTheLoop:
 
-            if(isalpha(currentSymbol) || isnumber(currentSymbol)){
+            //Case 1: For operands (which can be alphabets or numbers)
+            if (isalpha(currentSymbol) || isnumber(currentSymbol)) {
                 postFixExpression.push_back(currentSymbol);
-            } else {
-                if(stack.isEmpty()){
-                    stack.push(currentSymbol);
-                    continue;
+                continue;
+            }
+
+            //Case 2: If Stack is empty
+            if (stack.isEmpty()) {
+                stack.push(currentSymbol);
+                continue;
+            }
+
+            //Case 3: If we get "(" or ")"
+            if (stack.getTop() == '(') {
+                stack.push(currentSymbol);
+                continue;
+            } else if (currentSymbol == ')') {
+                while (stack.getTop() != '(') {
+                    postFixExpression.push_back(stack.pop());
                 }
-                if(stack.getTop() == '('){
+                stack.pop();
+                continue;
+            } else if (currentSymbol == '(') {
+                stack.push(currentSymbol);
+                continue;
+            }
+
+            //Case 4: If we get an operator, then we'll check precedence
+            if (getPrecedence(stack.getTop()) < getPrecedence(currentSymbol)) {
+                stack.push(currentSymbol);
+            } else if (getPrecedence(stack.getTop()) == getPrecedence(currentSymbol)) {
+                //if precedence is equal, we'll check associativity
+                if (getAssociativity(currentSymbol) == RIGHT_ASSOCIATIVE) {
                     stack.push(currentSymbol);
-                    continue;
-                }else if(currentSymbol == ')'){
-                    while (stack.getTop() != '('){
-                        postFixExpression.push_back(stack.pop());
-                    }
-                    stack.pop();
-                    continue;
-                } else if (currentSymbol == '('){
-                    stack.push(currentSymbol);
-                    continue;
-                } else if (getPrecedence(stack.getTop()) < getPrecedence(currentSymbol)){
-                    stack.push(currentSymbol);
-                } else if (getPrecedence(stack.getTop()) == getPrecedence(currentSymbol)){
-                    if(getAssociativity(currentSymbol) == RIGHT_ASSOCIATIVE){
-                        stack.push(currentSymbol);
-                    }else{
-                        postFixExpression.push_back(stack.pop());
-                        goto topOfTheLoop;
-                    }
-                } else if (getPrecedence(stack.getTop()) > getPrecedence(currentSymbol)){
+                } else {
                     postFixExpression.push_back(stack.pop());
                     goto topOfTheLoop;
-                } else{
-                    postFixExpression.push_back(stack.pop());
                 }
+            } else if (getPrecedence(stack.getTop()) > getPrecedence(currentSymbol)) {
+                postFixExpression.push_back(stack.pop());
+                goto topOfTheLoop;
             }
         }
 
-        while(!stack.isEmpty()){
-            cout<<endl;
+        while (!stack.isEmpty()) {
+            cout << endl;
             postFixExpression.push_back(stack.pop());
         }
     }
 
-    void printPostFixExpression(){
-        cout<<"Infix: "<<infixExpression<<endl;
-        cout<<"Postfix: "<<postFixExpression<<endl;
+    void printPostFixExpression() {
+        cout << "Infix: " << infixExpression << endl;
+        cout << "Postfix: " << postFixExpression << endl;
     }
 };
 
